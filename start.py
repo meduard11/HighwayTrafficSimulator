@@ -2,7 +2,11 @@ import sys
 
 from simulation import Simulation
 from window import Window
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+ALPHA_VR = float(os.getenv("ALPHA_VR"))
 
 TREND = [2, 4, 2, 2, 5, 8, 14, 19, 15, 12, 8, 6, 6, 5, 7, 10, 15, 20, 15, 10, 6, 4, 5, 3]
 
@@ -31,7 +35,7 @@ for adj in adjacent_roads:
     sim.add_adjacent_roads(adj[0], adj[1])
 
 sim.create_gen({
-    'vehicle_rate': [i * 5 for i in TREND],
+    'vehicle_rate': [i * ALPHA_VR * 2 for i in TREND],
     'index': 0,
     'vehicles': [
         [1, {'path': [0]}],
@@ -49,7 +53,7 @@ sim.create_gen({
 
 sim.create_gen(
     {
-        'vehicle_rate':  [i * 2.5 for i in TREND],
+        'vehicle_rate':  [i * ALPHA_VR for i in TREND],
         'index': 0,
         'vehicles': [
             [1, {'path': [3, 2]}]]

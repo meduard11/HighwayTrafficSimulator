@@ -7,17 +7,21 @@ from road import Road
 from generator import VehicleGenerator
 from vehicle import checkpoint1, checkpoint2, checkpoint3, checkpoint4
 import pandas as pd
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Constant that says how much self.t means 1 minute
-TMIN = 0.1
+TMIN = float(os.getenv("TMIN"))
 # How much minutes between 2 data records
-SAVING_DELAY = 60
+SAVING_DELAY = int(os.getenv("SAVING_DELAY"))
 # How much time between 2 lane changing
-VEHICLE_LANECHANGE_DELAY = 4
+VEHICLE_LANECHANGE_DELAY = int(os.getenv("VEHICLE_LANECHANGE_DELAY"))
 # Between 0-44, the bigger it is, the more often vehicles will overtake
-VEHICLE_OVERTAKE_LIMIT = 15
+VEHICLE_OVERTAKE_LIMIT = int(os.getenv("VEHICLE_OVERTAKE_LIMIT"))
 # Number of days we want to save data for + 1
-DAY_LIMIT = 2
+DAY_LIMIT = int(os.getenv("DAY_LIMIT"))
 
 
 class Simulation:
@@ -248,7 +252,7 @@ class Simulation:
                                 next_next_vehicle.v < VEHICLE_OVERTAKE_LIMIT)) or next_vehicle.v + VEHICLE_OVERTAKE_LIMIT < v.v:
 
                             idx = self.roads[left_lane_index].check_insertion(v.x + road.start[0],
-                                                                              road.start[0], safe_distance=30)
+                                                                              road.start[0], safe_distance=15)
                             if idx != -1:
                                 road.vehicles.remove(v)
                                 new_vehicle = deepcopy(v)
