@@ -42,6 +42,8 @@ class VehicleGenerator:
                 return Vehicle(config)
 
     def update(self):
+
+
         # Un véhicule apparait toutes les 60/self.rate sec, self_rate = 60 -> 1 véhicule par seconde, par generateur
         if self.sim.t - self.last_added_time >= 60 / self.vehicle_rate[self.index]:
             # If time elasped after last added vehicle is

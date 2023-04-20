@@ -6,17 +6,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Car longueur
 L = int(os.getenv("L"))
 # Space between next car
 S0 = int(os.getenv("S0"))
 # Reaction time
 T = int(os.getenv("T"))
-# Vitesse max d'un véhicule qui varie entre V_MAX1 et V_MAX2 (en m/s)
+# Max speed between V_MAX1 et V_MAX2 (m/s)
 V_MAX1, V_MAX2 = float(os.getenv("V_MAX1")), float(os.getenv("V_MAX2"))
-# Acceleration max d'un véhicule qui varie entre A_MAX1 et A_MAX2 (en m/s^^2)
+# Acceleration max between A_MAX1 and A_MAX2 (m/s^^2)
 A_MAX1, A_MAX2 = float(os.getenv("A_MAX1")), float(os.getenv("A_MAX2"))
-# Deceleration max d'un véhicule qui varie entre B_MAX1 et B_MAX2 (en m/s^^2)
+# Max brake between B_MAX1 and B_MAX2 (m/s^^2)
 B_MAX1, B_MAX2 = float(os.getenv("B_MAX1")), float(os.getenv("B_MAX2"))
 # 1/TRUCK_RATE will be a truck
 TRUCK_RATE = int(os.getenv("TRUCK_RATE"))
@@ -85,7 +84,6 @@ class Vehicle:
     def set_started_insertion(self, time):
         self.started_insertion = time
 
-    # dt correspond aux fps qu'on désire avoir
     def update(self, lead, dt):
 
         # Update position and velocity

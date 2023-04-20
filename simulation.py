@@ -37,7 +37,7 @@ class Simulation:
         self.changed_hour = True
         self.changed_day = False
         self.saved_checkpoints = False
-
+        self.insert_lane_nb = 0
         self.frame_count = 0  # Frame count keeping
         self.dt = 1 / 200  # Simulation time step
         self.roads = []  # Array to store roads
@@ -83,6 +83,7 @@ class Simulation:
 
     def create_road(self, start, end):
         road = Road(start, end)
+        road.index = len(self.roads)
         self.roads.append(road)
         return road
 
@@ -172,15 +173,12 @@ class Simulation:
             if vehicle.x >= road.length:
                 road.vehicles.popleft()
 
-        # No vehicules to update
         else:
             return
 
-        # Dans le cas ou il s'agit d'une lane d'insertion
         if road.insertion:
             self.insert_road(road)
 
-        # "Normal" Case
         else:
             self.normal_lane(road)
         return
@@ -209,7 +207,8 @@ class Simulation:
                 if v.x + road.start[0] > road.end[0] - road_limit_max - 10:
                     v.stop()
 
-            next_road_index = v.current_road_index - 1
+            # Calcul index road where to insert.
+            next_road_index = v.current_road_index - abs(self.insert_lane_nb - road.index)
 
             idx = self.roads[next_road_index].check_insertion(v.x + road.start[0], road.start[0])
             if idx != -1:
@@ -263,7 +262,7 @@ class Simulation:
                                 return
 
                 # Check if right lane free to insert based on belgium rules
-                if right_lane_index < len(self.roads) - 1:
+                if right_lane_index < len(self.roads) - self.insert_lane_nb:
                     idx = self.roads[right_lane_index].check_insertion(v.x + road.start[0],
                                                                        road.start[0], safe_distance=50)
 

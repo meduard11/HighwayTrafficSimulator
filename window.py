@@ -2,6 +2,15 @@ import pygame
 from pygame import gfxdraw, freetype
 import numpy as np
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+cp1 = int(os.getenv("CHECKPOINT1"))
+cp2 = int(os.getenv("CHECKPOINT2"))
+cp3 = int(os.getenv("CHECKPOINT3"))
+cp4 = int(os.getenv("CHECKPOINT4"))
 
 class Window:
     def __init__(self, sim, config={}):
@@ -281,10 +290,10 @@ class Window:
         text_hours = self.text_font.render(f'Hour = {str(int(self.sim.hour)) + ":" + str(int(self.sim.minutes))}', False, (0, 0, 0))
         text_days = self.text_font.render(f'Day = {self.sim.day}', False, (0, 0, 0))
 
-        checkpoint1 = self.text_font.render(f'Checkpoint 50:{ " Cars : " , self.sim.checkpoints[50]["car"]["n"] , " Trucks : " , self.sim.checkpoints[50]["truck"]["n"] , " VMean : " , self.sim.checkpoints[50]["v_mean"]}', False, (0, 0, 0))
-        checkpoint2 = self.text_font.render(f'Checkpoint 200:{ " Cars : " , self.sim.checkpoints[200]["car"]["n"] , " Trucks : " , self.sim.checkpoints[200]["truck"]["n"] , " VMean : " , self.sim.checkpoints[200]["v_mean"]}', False, (0, 0, 0))
-        checkpoint3 = self.text_font.render(f'Checkpoint 400: { " Cars : " , self.sim.checkpoints[400]["car"]["n"] , " Trucks : " , self.sim.checkpoints[400]["truck"]["n"] , " VMean : " , self.sim.checkpoints[400]["v_mean"]}', False, (0, 0, 0))
-        checkpoint4 = self.text_font.render(f'Checkpoint 600:{" Cars : " , self.sim.checkpoints[600]["car"]["n"] , " Trucks : " , self.sim.checkpoints[600]["truck"]["n"] , " VMean : " , self.sim.checkpoints[600]["v_mean"]}', False, (0, 0, 0))
+        checkpoint1 = self.text_font.render(f'Checkpoint {cp1}:{ " Cars : " , self.sim.checkpoints[cp1]["car"]["n"] , " Trucks : " , self.sim.checkpoints[cp1]["truck"]["n"] , " VMean : " , self.sim.checkpoints[cp1]["v_mean"]}', False, (0, 0, 0))
+        checkpoint2 = self.text_font.render(f'Checkpoint {cp2}:{ " Cars : " , self.sim.checkpoints[cp2]["car"]["n"] , " Trucks : " , self.sim.checkpoints[cp2]["truck"]["n"] , " VMean : " , self.sim.checkpoints[cp2]["v_mean"]}', False, (0, 0, 0))
+        checkpoint3 = self.text_font.render(f'Checkpoint {cp3}: { " Cars : " , self.sim.checkpoints[cp3]["car"]["n"] , " Trucks : " , self.sim.checkpoints[cp3]["truck"]["n"] , " VMean : " , self.sim.checkpoints[cp3]["v_mean"]}', False, (0, 0, 0))
+        checkpoint4 = self.text_font.render(f'Checkpoint {cp4}:{" Cars : " , self.sim.checkpoints[cp4]["car"]["n"] , " Trucks : " , self.sim.checkpoints[cp4]["truck"]["n"] , " VMean : " , self.sim.checkpoints[cp4]["v_mean"]}', False, (0, 0, 0))
 
         self.screen.blit(text_fps, (0, 0))
         self.screen.blit(text_frc, (100, 0))
@@ -295,8 +304,6 @@ class Window:
         self.screen.blit(checkpoint2, (0, 55))
         self.screen.blit(checkpoint3, (0, 80))
         self.screen.blit(checkpoint4, (0, 105))
-
-
 
     def draw(self):
             # Fill background
