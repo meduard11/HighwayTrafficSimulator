@@ -70,8 +70,32 @@ class Simulation:
                           "v_total": 0, "v_mean": 0, "n": 0}}
 
     def save_data(self):
-        df = pd.DataFrame.from_dict(self.data).transpose()
-        df.to_csv('traffic.csv')
+        df = pd.read_csv("traffic.csv")
+
+        def extract_values(row):
+            row_dict = eval(row)  # convert string to dictionary
+            return pd.Series(
+                [row_dict['car']['n'], row_dict['car']['v_mean'], row_dict['truck']['n'], row_dict['truck']['v_mean']])
+
+
+
+        for i in range(4):
+            df[['car_n ' + str(i), 'car_v_mean ' + str(i), 'truck_n ' + str(i), 'truck_v_mean ' + str(i)]] = df[str(i)].apply(extract_values)
+            df = df.drop(str(i), axis=1)
+            df = df.rename(columns={'Unnamed: 0': 'Day & Time'})
+
+            df_cp1 = df[["Day & Time", "car_n 0", "car_v_mean 0", "truck_n 0", "truck_v_mean 0"]]
+            df_cp2 = df[["Day & Time", "car_n 1", "car_v_mean 1", "truck_n 1", "truck_v_mean 1"]]
+
+            df_cp2['full'] = df['car_n 1'].map(str) + '-' + df['car_v_mean 1'].map(str) + '-' + df['truck_n 1'].map(str) + '-' + df['truck_v_mean 1'].map(str)
+
+            df_cp2 = df_cp2.drop(df.index[0]).reset_index(drop=True)
+            df_cp1 = df_cp1.drop(df.index[-1])
+            df_cp1["Y"] = df_cp2["full"]
+
+        print(df_cp1)
+
+        return
 
     def stop(self):
         pygame.quit()
@@ -178,7 +202,6 @@ class Simulation:
 
         if road.insertion:
             self.insert_road(road)
-
         else:
             self.normal_lane(road)
         return
@@ -284,11 +307,12 @@ class Simulation:
                 self.checkpoints[x_check][v.type]["v_total"] += v.v
                 self.checkpoints[x_check][v.type]["v_mean"] = \
                     round(self.checkpoints[x_check][v.type]["v_total"] / \
-                                                              self.checkpoints[x_check][v.type]["n"], 2)
+                          self.checkpoints[x_check][v.type]["n"], 2)
                 self.checkpoints[x_check]["n"] += 1
                 self.checkpoints[x_check]["v_total"] += v.v
-                self.checkpoints[x_check]["v_mean"] = round(self.checkpoints[x_check]["v_total"] / self.checkpoints[x_check][
-                    "n"], 2)
+                self.checkpoints[x_check]["v_mean"] = round(
+                    self.checkpoints[x_check]["v_total"] / self.checkpoints[x_check][
+                        "n"], 2)
 
                 v.checkpoints[x_check] = 1
 

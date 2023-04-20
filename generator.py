@@ -2,11 +2,12 @@ from vehicle import Vehicle
 from numpy.random import randint
 import random
 
+RANDOM_BETA = 5
 
 class VehicleGenerator:
     def __init__(self, sim, config={}):
         self.sim = sim
-
+        self.beta = 1
         # Set default configurations
         self.set_default_config()
 
@@ -42,10 +43,13 @@ class VehicleGenerator:
                 return Vehicle(config)
 
     def update(self):
-
-
         # Un véhicule apparait toutes les 60/self.rate sec, self_rate = 60 -> 1 véhicule par seconde, par generateur
-        if self.sim.t - self.last_added_time >= 60 / self.vehicle_rate[self.index]:
+        if self.sim.t - self.last_added_time >= 60 / self.vehicle_rate[self.index] * self.beta:
+            # randomly cancel vehicle spawn and spawn +1 as much on next iteration if canceled
+            random_gen = random.randint(1, RANDOM_BETA)
+            if random_gen == RANDOM_BETA:
+                self.beta += 1
+                return
             # If time elasped after last added vehicle is
             # greater than vehicle_period; generate a vehicle
             road = self.sim.roads[self.upcoming_vehicle.path[0]]
@@ -56,7 +60,7 @@ class VehicleGenerator:
                 self.upcoming_vehicle.position = len(road.vehicles)
                 self.upcoming_vehicle.timeline = self.sim.t
                 road.vehicles.append(self.upcoming_vehicle)
+                self.beta = 1
                 # Reset last_added_time and upcoming_vehicle
                 self.last_added_time = self.sim.t
-
             self.upcoming_vehicle = self.generate_vehicle()

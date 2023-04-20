@@ -43,17 +43,12 @@ class Road():
     # Returns index where can be inserted, -2 for appendLeft, -1 for no insert or i
     def check_insertion(self, x, prevStart, safe_distance=10):
         min_dist = 30
-
         if x > min_dist + prevStart:
             # If no vehicle on the road, we can insert
             if len(self.vehicles) < 1:
                 return -2
 
-            # If only 1 car on next lane, don't need to check more
-            if len(self.vehicles) == 1 and (self.vehicles[0].x + safe_distance < x or self.vehicles[0].x - safe_distance > x):
-                return -2
-
-            # Checks first car of list and append if far enough
+            # If first vehicle behind the vehicle we wanna insert
             if self.vehicles[0].x + safe_distance < x:
                 return -2
 
@@ -64,12 +59,13 @@ class Road():
                     break
                 i += 1
 
-            # if i corresponds to the number of cars on the road, we can deduct no place was found
-            if len(self.vehicles) == i:
-                return -1
+            # If last vehicle we found, we append right
+            if len(self.vehicles) == i and self.vehicles[i-1].x - safe_distance > x:
+                return i
 
             if self.vehicles[i - 1].x - safe_distance > x > self.vehicles[i].x + safe_distance:
                 return i
+
         return -1
 
     def insert_vehicle_bis(self, vehicule, index):
@@ -77,47 +73,3 @@ class Road():
             self.vehicles.appendleft(vehicule)
         else:
             self.vehicles.insert(index, vehicule)
-
-    # Inserts the vehicle on the next path
-    def insert_vehicle(self, vehicule, prevStart, safe_distance=10):
-
-        min_dist = 30
-
-        if vehicule.last_time_lane_change == 0:
-            vehicule.last_time_lane_change = datetime.now()
-        elif datetime.now() - vehicule.last_time_lane_change < timedelta(seconds=1):
-            return False
-
-        if vehicule.x > min_dist + prevStart:
-
-            # If no vehicle on the road, we can insert
-            if len(self.vehicles) < 1:
-                self.vehicles.appendleft(vehicule)
-                return True
-
-            # If only 1 car on next lane, don't need to check more
-            if len(self.vehicles) == 1 and self.vehicles[0].x + safe_distance < vehicule.x:
-                self.vehicles.appendleft(vehicule)
-                return True
-
-            # Checks first car of list and append if far enough
-            if self.vehicles[0].x + safe_distance < vehicule.x:
-                self.vehicles.appendleft(vehicule)
-                return True
-
-            # Finds the index of the previous car
-            i = 0
-            for v in self.vehicles:
-                if v.x < vehicule.x:
-                    break
-                i += 1
-
-            # if i corresponds to the number of cars on the road, we can deduct no place was found
-            if len(self.vehicles) == i:
-                return False
-
-            if self.vehicles[i - 1].x - safe_distance > vehicule.x > self.vehicles[i].x + safe_distance:
-                self.vehicles.insert(i, vehicule)
-                return True
-
-        return False

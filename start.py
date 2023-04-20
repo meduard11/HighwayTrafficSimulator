@@ -86,5 +86,7 @@ if mode == 0:
 else:
     print("Starting non graphic mode and saving data")
     sim.data_save = True
-    while True and not sim.stopped:
-        sim.run(10)
+    sim.save_data()
+
+    #while True and not sim.stopped:
+    #   sim.run(10)
