@@ -20,8 +20,8 @@ class Window:
         self.offset = (0, 0)
         self.zoom = 5
         self.fps = 60
-        self.height = 900
-        self.width = 1400
+        self.height = 800
+        self.width = 1200
         self.bg_color = (250, 250, 250)
         self.sim = sim
         self.screen = pygame.display.set_mode((self.width, self.height))

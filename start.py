@@ -82,11 +82,8 @@ if mode == 0:
     win.zoom = 2
     win.run(steps_per_update=10)
 
-
 else:
     print("Starting non graphic mode and saving data")
     sim.data_save = True
-    sim.save_data()
-
-    #while True and not sim.stopped:
-    #   sim.run(10)
+    while True and not sim.stopped:
+        sim.run(10)

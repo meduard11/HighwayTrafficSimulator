@@ -31,11 +31,11 @@ class Simulation:
         self.screen = pygame.display.set_mode((1600, 800))
         self.clock = pygame.time.Clock()
         self.t = 0.0  # Time keeping
-        self.day = 0
+        self.day = 1
         self.hour = 0
         self.minutes = 0
-        self.changed_hour = True
-        self.changed_day = False
+        self.changed_hour = False
+        self.changed_day = True
         self.saved_checkpoints = False
         self.insert_lane_nb = 0
         self.frame_count = 0  # Frame count keeping
@@ -70,31 +70,48 @@ class Simulation:
                           "v_total": 0, "v_mean": 0, "n": 0}}
 
     def save_data(self):
-        df = pd.read_csv("traffic.csv")
+        df = pd.DataFrame(columns=['time', '0', '1', '2', '3'])
+
+        # loop through the dictionary keys and values
+        for time, values in self.data.items():
+            # create a new row with the time and values for each column
+            row = {'time': time}
+            for i, item in enumerate(values):
+                row[str(i)] = {'car': item['car'], 'truck': item['truck']}
+            # add the row to the dataframe
+            df = df.append(row, ignore_index=True)
 
         def extract_values(row):
-            row_dict = eval(row)  # convert string to dictionary
             return pd.Series(
-                [row_dict['car']['n'], row_dict['car']['v_mean'], row_dict['truck']['n'], row_dict['truck']['v_mean']])
-
-
+                [row['car']['n'], row['car']['v_mean'], row['truck']['n'], row['truck']['v_mean']])
 
         for i in range(4):
-            df[['car_n ' + str(i), 'car_v_mean ' + str(i), 'truck_n ' + str(i), 'truck_v_mean ' + str(i)]] = df[str(i)].apply(extract_values)
+            df[['car_n ' + str(i), 'car_v_mean ' + str(i), 'truck_n ' + str(i), 'truck_v_mean ' + str(i)]] = df[
+                str(i)].apply(extract_values)
             df = df.drop(str(i), axis=1)
-            df = df.rename(columns={'Unnamed: 0': 'Day & Time'})
 
-            df_cp1 = df[["Day & Time", "car_n 0", "car_v_mean 0", "truck_n 0", "truck_v_mean 0"]]
-            df_cp2 = df[["Day & Time", "car_n 1", "car_v_mean 1", "truck_n 1", "truck_v_mean 1"]]
+        for i in range(3):
+            car_n = "car_n " + str(i)
+            car_v_mean = "car_v_mean " + str(i)
+            truck_n = "truck_n " + str(i)
+            truck_v_mean = "truck_v_mean " + str(i)
 
-            df_cp2['full'] = df['car_n 1'].map(str) + '-' + df['car_v_mean 1'].map(str) + '-' + df['truck_n 1'].map(str) + '-' + df['truck_v_mean 1'].map(str)
+            car_n1 = "car_n " + str(i + 1)
+            car_v_mean1 = "car_v_mean " + str(i + 1)
+            truck_n1 = "truck_n " + str(i + 1)
+            truck_v_mean1 = "truck_v_mean " + str(i + 1)
+
+            df_cp1 = df[["time", car_n, car_v_mean, truck_n, truck_v_mean]]
+            df_cp2 = df[["time", car_n1, car_v_mean1, truck_n1, truck_v_mean1]]
+
+            df_cp2['full'] = df[car_n1].map(str) + '-' + df[car_v_mean1].map(
+                str) + '-' + df[truck_n1].map(str) + '-' + df[truck_v_mean1].map(str)
 
             df_cp2 = df_cp2.drop(df.index[0]).reset_index(drop=True)
             df_cp1 = df_cp1.drop(df.index[-1])
             df_cp1["Y"] = df_cp2["full"]
-
-        print(df_cp1)
-
+            df_cp1.to_csv('data/cp' + str(i) + ".csv")
+        print("Saved your data !")
         return
 
     def stop(self):
@@ -156,35 +173,38 @@ class Simulation:
             self.stopped = True
 
         minutes = (self.t // TMIN) % 60
+
+        # Reset the boolean for hours change
+        if minutes == 0 and self.changed_hour:
+            self.hour = (self.hour + 1) % 24
+            self.changed_hour = False
+
         self.minutes = minutes
+
+        # Change hour
+        if minutes == 59 and not self.changed_hour:
+            self.changed_hour = True
+            self.update_generators()
 
         # Resets the boolean for minutes
         if self.minutes % SAVING_DELAY == 1:
             self.saved_checkpoints = False
 
-        # Reset the boolean for hours change
-        if minutes == 1:
-            self.changed_hour = False
+        # Change day
+        if self.hour == 0 and not self.changed_day:
+            self.day += 1
+            self.changed_day = True
 
         # Reset every day
         if self.hour == 1:
             self.changed_day = False
+
 
         # Saves data every SAVING_DELAY min
         if self.minutes % SAVING_DELAY == 0 and not self.saved_checkpoints and self.data_save:
             self.save_checkpoints()
             self.saved_checkpoints = True
 
-        # Change hour
-        if minutes == 59 and not self.changed_hour:
-            self.hour = (self.hour + 1) % 24
-            self.changed_hour = True
-            self.update_generators()
-
-        # Change day
-        if self.hour == 0 and not self.changed_day:
-            self.day += 1
-            self.changed_day = True
 
     # Update each road
     def update_road(self, road):
