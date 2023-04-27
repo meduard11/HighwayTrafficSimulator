@@ -112,6 +112,7 @@ class Simulation:
             df_cp1["Y"] = df_cp2["full"]
             df_cp1.to_csv('data/cp' + str(i) + ".csv")
         print("Saved your data !")
+        self.stopped = True
         return
 
     def stop(self):
@@ -154,8 +155,6 @@ class Simulation:
         self.t += self.dt
         self.update_time()
         self.frame_count += 1
-        # save our data
-        # self.save_checkpoints()
 
     def update_generators(self):
         # Updating the generators so vehicle rates are changing
@@ -199,12 +198,10 @@ class Simulation:
         if self.hour == 1:
             self.changed_day = False
 
-
         # Saves data every SAVING_DELAY min
         if self.minutes % SAVING_DELAY == 0 and not self.saved_checkpoints and self.data_save:
             self.save_checkpoints()
             self.saved_checkpoints = True
-
 
     # Update each road
     def update_road(self, road):
@@ -338,4 +335,5 @@ class Simulation:
 
     def run(self, steps):
         for _ in range(steps):
-            self.update()
+            if not self.stopped:
+                self.update()

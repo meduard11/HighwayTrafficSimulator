@@ -43,8 +43,13 @@ class VehicleGenerator:
                 return Vehicle(config)
 
     def update(self):
+
+        bruit = (self.vehicle_rate[self.index] * self.beta) / 10
+        random_bruit = random.uniform(0, bruit * 2)
+        v_rate = (self.vehicle_rate[self.index] * self.beta) - bruit + random_bruit
+
         # Un véhicule apparait toutes les 60/self.rate sec, self_rate = 60 -> 1 véhicule par seconde, par generateur
-        if self.sim.t - self.last_added_time >= 60 / self.vehicle_rate[self.index] * self.beta:
+        if self.sim.t - self.last_added_time >= 60 / v_rate:
             # randomly cancel vehicle spawn and spawn +1 as much on next iteration if canceled
             random_gen = random.randint(1, RANDOM_BETA)
             if random_gen == RANDOM_BETA:
